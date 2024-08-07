@@ -7,10 +7,10 @@ import java.sql.SQLException;
 
 public class ItemDAOImpl implements ItemDAO{
 
-    public static String SAVE_ITEM = "INSERT INTO item (name,code,size,price,qty) VALUES (?,?,?,?,?)";
-    public static String GET_ITEM = "SELECT * FROM item WHERE code = ?";
-    public static String UPDATE_ITEM = "UPDATE students SET name = ?, size = ?, price = ?, qty = ? WHERE code = ?";
-    public static String DELETE_ITEM = "DELETE FROM students WHERE code = ?";
+    public static String SAVE_ITEM = "INSERT INTO item (itemname,itemcode,size,price,qty) VALUES (?,?,?,?,?)";
+    public static String GET_ITEM = "SELECT * FROM item WHERE itemcode = ?";
+    public static String UPDATE_ITEM = "UPDATE item SET itemname = ?, size = ?, price = ?, qty = ? WHERE itemcode = ?";
+    public static String DELETE_ITEM = "DELETE FROM item WHERE itemcode = ?";
 
 
     @Override
@@ -73,9 +73,9 @@ public class ItemDAOImpl implements ItemDAO{
             while (rst.next()){
                 itemDTO.setItemName(rst.getString("itemName"));
                 itemDTO.setItemCode(rst.getString("itemCode"));
-                itemDTO.setItmSize(rst.getString("itmSize"));
-                itemDTO.setItemPrice(rst.getString("itemPrice"));
-                itemDTO.setItemQTY(rst.getString("itemQTY"));
+                itemDTO.setItmSize(rst.getString("size"));
+                itemDTO.setItemPrice(rst.getString("price"));
+                itemDTO.setItemQTY(rst.getString("qty"));
             }
 
             return itemDTO;

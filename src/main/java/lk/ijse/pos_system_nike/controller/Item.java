@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lk.ijse.pos_system_nike.bo.ItemBOImpl;
 import lk.ijse.pos_system_nike.dto.ItemDTO;
 import lk.ijse.pos_system_nike.util.Util;
 
@@ -16,15 +17,11 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 @WebServlet(urlPatterns = "/item",loadOnStartup = 2)
 public class Item extends HttpServlet {
     public static String SAVE_ITEM = "INSERT INTO item (itemname,itemcode,size,price,qty) VALUES (?,?,?,?,?)";
-    public static String GET_ITEM = "SELECT * FROM item WHERE code = ?";
-    public static String UPDATE_ITEM = "UPDATE students SET name = ?, size = ?, price = ?, qty = ? WHERE code = ?";
-    public static String DELETE_ITEM = "DELETE FROM students WHERE code = ?";
 
     Connection connection;
 
@@ -88,37 +85,60 @@ public class Item extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try (var writer  = resp.getWriter()){
 
-            ItemDTO itemDTO = new ItemDTO();
             Jsonb jsonb = JsonbBuilder.create();
 
+            //DB process
             var itemCode = req.getParameter("itemCode");
-            var ps = connection.prepareStatement(GET_ITEM);
-            ps.setString(1, itemCode);
-            var rst = ps.executeQuery();
-
-            while (rst.next()){
-                itemDTO.setItemName(rst.getString("name"));
-                itemDTO.setItemCode(rst.getString("code"));
-                itemDTO.setItmSize(rst.getString("size"));
-                itemDTO.setItemPrice(rst.getString("price"));
-                itemDTO.setItemQTY(rst.getString("qty"));
-            }
+            ItemBOImpl itemBO = new ItemBOImpl();
+            itemBO.getItem(itemCode, connection);
 
             resp.setContentType("application/json");
-            jsonb.toJson(itemDTO, writer);
+            jsonb.toJson(itemBO.getItem(itemCode, connection), writer);
 
-        }catch (SQLException e){
+        }catch (Exception e){
             e.printStackTrace();
         }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try(var writer = resp.getWriter()) {
 
+            var itemCode = req.getParameter("itemCode");
+            Jsonb jsonb = JsonbBuilder.create();
+            ItemDTO item = jsonb.fromJson(req.getReader(), ItemDTO.class);
+
+            ItemBOImpl itemBO = new ItemBOImpl();
+
+            if (itemBO.updateItem(itemCode, item, connection)) {
+                writer.write("Update item successfully");
+                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            }else {
+                writer.write("Update item failed");
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try(var writer = resp.getWriter()) {
+            var itemCode = req.getParameter("itemCode");
+            ItemBOImpl itemBO = new ItemBOImpl();
 
+            if (itemBO.deleteItem(itemCode, connection)) {
+                writer.write("Delete item successfully");
+                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            }else {
+                writer.write("Delete item failed");
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
