@@ -1,0 +1,9 @@
+<Context>
+    <Resource name="jdbc/posSystem" auth="Container" type="javax.sql.DataSource"
+              maxTotal="10" maxIdle="8" maxWaitMillis="-1"
+              username="root" password="1234" driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/NIKE"/>
+</Context>
+
+
+        <!--     maxTotal, maxIdle, maxWaitMillis ->   total connection - 10, idle thiyenne puluwn xonnectio - 8, connection 1k enkn bln innwa-->
