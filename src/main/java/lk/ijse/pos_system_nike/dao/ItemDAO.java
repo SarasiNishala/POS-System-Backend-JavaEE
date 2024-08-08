@@ -6,7 +6,7 @@ import java.sql.Connection;
 
 public interface ItemDAO {
     String saveItem(ItemDTO item, Connection connection);
-    boolean updateItem(String item, ItemDTO itemDTO, Connection connection);
+    boolean updateItem(String code, ItemDTO itemDTO, Connection connection);
     boolean deleteItem(String id, Connection connection);
     ItemDTO getItem(String id, Connection connection);
 }

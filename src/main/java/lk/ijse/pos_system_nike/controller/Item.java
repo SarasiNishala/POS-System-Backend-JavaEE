@@ -10,7 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.ijse.pos_system_nike.bo.ItemBOImpl;
 import lk.ijse.pos_system_nike.dto.ItemDTO;
-import lk.ijse.pos_system_nike.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -21,12 +22,14 @@ import java.sql.SQLException;
 
 @WebServlet(urlPatterns = "/item",loadOnStartup = 2)
 public class Item extends HttpServlet {
-    public static String SAVE_ITEM = "INSERT INTO item (itemname,itemcode,size,price,qty) VALUES (?,?,?,?,?)";
+
+    static Logger logger = LoggerFactory.getLogger(Item.class);
 
     Connection connection;
 
     @Override
     public void init() throws ServletException {
+        logger.info("Init method invoked");
 
         try {
             var ctx = new InitialContext();
@@ -47,35 +50,21 @@ public class Item extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
 
+        //Object binding of the JSON
+
         try (var writer = resp.getWriter()) {
             Jsonb jsonb = JsonbBuilder.create();
+
+            ItemBOImpl itemBO = new ItemBOImpl();
+
             ItemDTO item = jsonb.fromJson(req.getReader(), ItemDTO.class);
-            item.setItemCode(Util.idGenerate());
 
-            //save data to the db
+            writer.write(itemBO.saveItem(item, connection));
+            logger.info("Item saved successfully");
+            resp.setStatus(HttpServletResponse.SC_CREATED);
 
-            var ps = connection.prepareStatement(SAVE_ITEM);
-            ps.setString(1, item.getItemName());
-            ps.setString(2, item.getItemCode());
-            ps.setString(3, item.getItmSize());
-            ps.setString(4, item.getItemPrice());
-            ps.setString(5, item.getItemQTY());
-
-            if (ps.executeUpdate() != 0){
-                resp.setStatus(HttpServletResponse.SC_CREATED);
-                System.out.println("Save item successfully");
-                writer.write("Save item successfully");
-            }else {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                System.out.println("Save item failed");
-                writer.write("Save item failed");
-            }
-
-            //create response
-            resp.setContentType("application/json");
-            jsonb.toJson(item, writer);
-
-        } catch (JsonbException | IOException | SQLException e) {
+        } catch (JsonbException | IOException e) {
+            logger.error("Connection failed");
             System.out.println(e);
             throw new RuntimeException(e);
         }

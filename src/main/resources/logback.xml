@@ -9,7 +9,7 @@
     </appender>
 
     <appender name ="File" class ="ch.qos.logback.core.FileAppender">
-        <file>C:\Users\WAVE TECHZONE\IdeaProjects\EE-projects\Pos_System_NIKE</file>
+        <file>/home/tharu/academic/StudentManagement/app.log</file>
         <append>true</append>
         <encoder>
             <pattern>

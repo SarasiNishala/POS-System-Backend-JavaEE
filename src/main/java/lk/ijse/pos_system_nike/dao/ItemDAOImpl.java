@@ -34,14 +34,14 @@ public class ItemDAOImpl implements ItemDAO{
     }
 
     @Override
-    public boolean updateItem(String item, ItemDTO itemDTO, Connection connection) {
+    public boolean updateItem(String code, ItemDTO itemDTO, Connection connection) {
         try {
             var ps = connection.prepareStatement(UPDATE_ITEM);
             ps.setString(1, itemDTO.getItemName());
             ps.setString(2, itemDTO.getItmSize());
             ps.setString(3, itemDTO.getItemPrice());
             ps.setString(4, itemDTO.getItemQTY());
-            ps.setString(5, item);
+            ps.setString(5, code);
 
             return ps.executeUpdate() != 0;
 
