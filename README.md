@@ -55,6 +55,7 @@ https://documenter.getpostman.com/view/36300739/2sA3s3GW2m)
     <li>GET /placeOrder: Retrieve all order.</li>
     <li>POST /placeOrder: Create a new order.</li>
 </ul>
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENCE) file for details.
