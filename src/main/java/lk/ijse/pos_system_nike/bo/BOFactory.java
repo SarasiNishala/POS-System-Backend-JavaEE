@@ -2,6 +2,7 @@ package lk.ijse.pos_system_nike.bo;
 
 import lk.ijse.pos_system_nike.bo.custom.impl.CustomerBOImpl;
 import lk.ijse.pos_system_nike.bo.custom.impl.ItemBOImpl;
+import lk.ijse.pos_system_nike.bo.custom.impl.PlaceOrderBOImpl;
 
 public class BOFactory {
     private static BOFactory boFactory;
@@ -23,7 +24,7 @@ public class BOFactory {
             case ITEM:
                 return new ItemBOImpl();
             case PLACEORDER:
-               // return new PlaceOrderBOImpl();
+               return new PlaceOrderBOImpl();
             default:
                 return null;
         }
