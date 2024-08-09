@@ -2,16 +2,15 @@ package lk.ijse.pos_system_nike.controller;
 
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
-import jakarta.json.bind.JsonbException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.ijse.pos_system_nike.bo.BOFactory;
-import lk.ijse.pos_system_nike.bo.custom.ItemBo;
-import lk.ijse.pos_system_nike.bo.custom.impl.ItemBOImpl;
-import lk.ijse.pos_system_nike.dto.ItemDTO;
+import lk.ijse.pos_system_nike.bo.custom.CustomerBO;
+import lk.ijse.pos_system_nike.bo.custom.impl.CustomerBOImpl;
+import lk.ijse.pos_system_nike.dto.CustomerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +22,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet(urlPatterns = "/item",loadOnStartup = 2)
-public class Item extends HttpServlet {
+@WebServlet(urlPatterns = "/customer", loadOnStartup = 2)
+public class Customer extends HttpServlet {
 
     static Logger logger = LoggerFactory.getLogger(Item.class);
 
     Connection connection;
 
-    ItemBo itemBo = (ItemBo) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.ITEM);
+    CustomerBO customerBO =(CustomerBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.CUSTOMER);
 
     @Override
     public void init() throws ServletException {
@@ -57,12 +56,12 @@ public class Item extends HttpServlet {
 
         try (var writer = resp.getWriter()) {
             Jsonb jsonb = JsonbBuilder.create();
-            ItemDTO itemDTO = jsonb.fromJson(req.getReader(), ItemDTO.class);
+            CustomerDTO customerDTO = jsonb.fromJson(req.getReader(), CustomerDTO.class);
             if(false){
                 return;
             }
             //save data to the db
-            boolean isSaved = itemBo.saveItem(itemDTO,connection);
+            boolean isSaved = customerBO.saveCustomer(customerDTO,connection);
 
             if(isSaved){
                 resp.setStatus(HttpServletResponse.SC_CREATED);
@@ -82,12 +81,12 @@ public class Item extends HttpServlet {
             Jsonb jsonb = JsonbBuilder.create();
             resp.setContentType("application/json");
 
-            List<ItemDTO> items = itemBo.getAllItems(connection);
+            List<CustomerDTO> customers = customerBO.getAllCustomers(connection);
 
-            if (items != null){
-                jsonb.toJson(items, writer);
+            if (customers != null){
+                jsonb.toJson(customers, writer);
             }else{
-                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "no items found");
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "no customers found");
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -98,9 +97,9 @@ public class Item extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try (var writer = resp.getWriter()){
             Jsonb jsonb = JsonbBuilder.create();
-            ItemDTO itemDTO = jsonb.fromJson(req.getReader(), ItemDTO.class);
+            CustomerDTO customerDTO = jsonb.fromJson(req.getReader(), CustomerDTO.class);
 
-            if (itemBo.updateItem(itemDTO, connection)){
+            if (customerBO.updateCustomer(customerDTO, connection)){
                 resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }else {
                 writer.write("update failed");
@@ -115,14 +114,14 @@ public class Item extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try(var writer = resp.getWriter()) {
-            var itemCode = req.getParameter("itemCode");
-            ItemBOImpl itemBO = new ItemBOImpl();
+            var id = req.getParameter("id");
+            CustomerBOImpl customerBO = new CustomerBOImpl();
 
-            if (itemBO.deleteItem(itemCode, connection)) {
-                writer.write("Delete item successfully");
+            if (customerBO.deleteCustomer(id, connection)) {
+                writer.write("Delete customer successfully");
                 resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }else {
-                writer.write("Delete item failed");
+                writer.write("Delete customer failed");
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             }
 
